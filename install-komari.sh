@@ -36,6 +36,9 @@ REPO="kadidalax/komari-classic"
 CHANNEL="stable"
 # TUI 工具: whiptail / dialog / 空（回退纯文本）
 TUI_TOOL=""
+# 注意: 一键命令 (curl -fsSL ... | sudo bash) 下脚本的 stdin 是管道而非终端，
+# whiptail/dialog 与 read 必须显式从 /dev/tty 读键盘，否则菜单显示后无法操作、
+# 读到 EOF 会被当成取消而直接退出。下面所有 TUI/read 调用都带了 </dev/tty。
 
 # ==========================================================
 # TUI / 交互层
@@ -65,7 +68,7 @@ ui_menu() {
     local prompt="$1"; shift
 
     if tui_enabled; then
-        $TUI_TOOL --title "$title" --menu "$prompt" 20 70 10 "$@" 3>&1 1>&2 2>&3
+        $TUI_TOOL --title "$title" --menu "$prompt" 20 70 10 "$@" </dev/tty 3>&1 1>&2 2>&3
         return $?
     fi
 
@@ -89,7 +92,7 @@ ui_menu() {
         echo
     } >&2
     local choice
-    read -r -p "输入选项: " choice >&2
+    read -r -p "输入选项: " choice </dev/tty >&2
     echo "$choice"
 }
 
@@ -102,12 +105,12 @@ ui_input() {
     local default="$3"
 
     if tui_enabled; then
-        $TUI_TOOL --title "$title" --inputbox "$prompt" 12 70 "$default" 3>&1 1>&2 2>&3
+        $TUI_TOOL --title "$title" --inputbox "$prompt" 12 70 "$default" </dev/tty 3>&1 1>&2 2>&3
         return $?
     fi
 
     local input
-    read -r -p "$prompt [默认: $default]: " input >&2
+    read -r -p "$prompt [默认: $default]: " input </dev/tty >&2
     if [ -z "$input" ]; then
         echo "$default"
     else
@@ -123,12 +126,12 @@ ui_yesno() {
     local prompt="$2"
 
     if tui_enabled; then
-        $TUI_TOOL --title "$title" --yesno "$prompt" 12 70
+        $TUI_TOOL --title "$title" --yesno "$prompt" 12 70 </dev/tty
         return $?
     fi
 
     local confirm
-    read -r -p "$prompt (Y/n): " confirm >&2
+    read -r -p "$prompt (Y/n): " confirm </dev/tty >&2
     if [[ $confirm =~ ^[Nn]$ ]]; then
         return 1
     fi
@@ -142,7 +145,7 @@ ui_msgbox() {
     local content="$2"
 
     if tui_enabled; then
-        $TUI_TOOL --title "$title" --msgbox "$content" 20 72
+        $TUI_TOOL --title "$title" --msgbox "$content" 20 72 </dev/tty
         return
     fi
 
@@ -152,7 +155,7 @@ ui_msgbox() {
     echo "=============================================================="
     echo -e "$content"
     echo "=============================================================="
-    read -r -p "按回车键继续..." _
+    read -r -p "按回车键继续..." _ </dev/tty
 }
 
 # 显示横幅（仅纯文本模式）
@@ -528,7 +531,7 @@ show_status() {
     else
         log_step "Komari 服务状态:"
         systemctl status ${SERVICE_NAME}.service --no-pager -l
-        read -r -p "按回车键继续..." _
+        read -r -p "按回车键继续..." _ </dev/tty
     fi
 }
 
