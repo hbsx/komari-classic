@@ -31,7 +31,7 @@ SERVICE_NAME="komari"
 BINARY_PATH="$INSTALL_DIR/komari"
 DEFAULT_PORT="25774"
 LISTEN_PORT=""
-REPO="kadidalax/komari-classic"
+REPO="hbsx/komari-classic"
 # 发布通道: stable（稳定版）或 snapshot（快照版）
 CHANNEL="stable"
 # TUI 工具: whiptail / dialog / 空（回退纯文本）
