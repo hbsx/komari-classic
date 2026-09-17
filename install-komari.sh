@@ -166,7 +166,7 @@ show_banner() {
     clear
     echo "=============================================================="
     echo "            Komari Monitoring System Installer"
-    echo "       https://github.com/kadidalax/komari-classic"
+    echo "       https://github.com/hbsx/komari-classic"
     echo "=============================================================="
     echo
 }
